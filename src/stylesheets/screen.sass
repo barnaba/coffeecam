@@ -1,0 +1,32 @@
+$dark: #473423
+$coffee: #755A42
+$latte: #AC8B6F
+$gareth: #D3C5B0
+$froth: #F5EEDE
+
+body
+  font:
+    family: Verdana
+    size: 10pt
+  color: $dark
+  background-color: $froth
+
+.mug 
+  $side: bottom
+  $radius: 30px
+  padding: 15px
+  border-#{$side}-left-radius: $radius
+  border-#{$side}-right-radius: $radius
+  background-color: $gareth
+  overflow: hidden
+  display: inline-block
+
+.handle
+  $radius: 40px
+  background-color: $latte
+  border-bottom-left-radius: $radius
+  border-top-left-radius: $radius
+  height: 80px
+  width: 60px
+  display: inline-block
+  margin-bottom: 30px
