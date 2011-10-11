@@ -1,4 +1,6 @@
-\documentclass[a4paper]{scrartcl}
+%\documentclass[a4paper]{scrartcl}
+\documentclass[a4paper]{article}
+\usepackage{fullpage}
 \pagestyle{headings}
 \usepackage{mdwlist}
 \usepackage{polski}
@@ -25,7 +27,7 @@ frame=single,                   % adds a~frame around the code
 \sloppy
 
 \title{coffeecam}
-\subtitle{silniczek graficzny w~coffeescripcie -- wirtualna kamera}
+%\subtitle{silniczek graficzny w~coffeescripcie -- wirtualna kamera}
 \author{Bartosz Pieńkowski, Barnaba Turek}
 \maketitle
 \abstract{
@@ -36,7 +38,7 @@ eliminacja elementów zasłoniętych i~cieniowanie).
 Zdecydowaliśmy się zaimplementować projekt w~języku coffeescript.
 
 Pierwsza część projektu polega na utworzeniu wirtualnej kamery. Kamera ma obsługiwać zmianę pozycji, ogniskowej i~kąta, w~którym jest skierowana.
-\section{Teoria}
+\section{Wirtualna kamera}
 \subsection{Elementy}
 Wirtualną kamerę zamierzamy stworzyć korzystając z~następujących elementów:
 \begin{enumerate}
@@ -67,7 +69,7 @@ Ostatecznie zostanie wykonane rzutowanie wierzchołków brył na rzutnię, poł�
 Ruch kamery będzie polegał na obliczeniu nowych współrzędnych oka w~układzie odniesienia oka, a~następnie przetłumaczeniu ich do układu współrzędnych sceny.
 Tak obliczone współrzędne zostaną zapisane jako nowe współrzędne kamery.
 
-\subsection{obrót kamery}
+\subsection{Obrót kamery}
 Kamera będzie przechowywać informacje o~swoim obrocie względem układu odniesienia sceny (kąty Eulera).
 
 \end{document}
