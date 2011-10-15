@@ -1,10 +1,8 @@
 namespace "coffeecam", (exports) ->
   class Camera
-    constructor: (cuboids) ->
-      @cuboids = cuboids
-      @position = $V([0,0,0,1])
+    constructor: (polygons) ->
+      @polygons = polygons
       @translation = Matrix.I(4)
-
       @viewport = {
         left : 0,
         right: 800,
@@ -14,6 +12,7 @@ namespace "coffeecam", (exports) ->
         far: 2
       }
 
+
     move: (v) ->
       matrix = $M([
         [1,0,0,v.e(1)],
@@ -21,7 +20,7 @@ namespace "coffeecam", (exports) ->
         [0,0,1,v.e(3)],
         [0,0,0,1],
       ])
-      @translation = this.normalize(@translation.x(matrix))
+      @translation = @translation.x(matrix)
       this.draw()
 
     rotate_x: (rad) ->
@@ -31,7 +30,7 @@ namespace "coffeecam", (exports) ->
         [0,Math.sin(rad), Math.cos(rad),0],
         [0,0,0,1],
       ])
-      @translation = this.normalize(@translation.x(matrix))
+      @translation = @translation.x(matrix)
       this.draw()
 
     rotate_y: (rad) ->
@@ -41,7 +40,7 @@ namespace "coffeecam", (exports) ->
         [-Math.sin(rad),0,Math.cos(rad),0],
         [0,0,0,1],
       ])
-      @translation = this.normalize(@translation.x(matrix))
+      @translation = @translation.x(matrix)
       this.draw()
 
     rotate_z: (rad) ->
@@ -51,7 +50,7 @@ namespace "coffeecam", (exports) ->
         [0,0,1,0],
         [0,0,0,1],
       ])
-      @translation = this.normalize(@translation.x(matrix))
+      @translation = @translation.x(matrix)
       this.draw()
 
     drawPolygon : (ctx, polygon) ->
@@ -72,19 +71,20 @@ namespace "coffeecam", (exports) ->
       ctx = canvas.getContext("2d")
       ctx.clearRect(0,0,800,600)
       ctx.strokeStyle = "#00FF00"
-      for cuboid in @projectedCuboids
-        this.drawPolygon(ctx, cuboid)
+      for polygon in @projectedPolygons
+        this.drawPolygon(ctx, polygon)
 
     project: ->
-      translatedCuboids = (this.translate(cuboid) for cuboid in @cuboids)
+      translatedPolygons = (this.translate(polygon) for polygon in @polygons)
       @projectionMatrix = this.calculateProjectionMatrix()
-      @projectedCuboids = (this.projectCuboid(cuboid) for cuboid in translatedCuboids)
+      @projectedPolygons = (this.projectPolygon(polygon) for polygon in translatedPolygons)
 
-    translate: (cuboid) ->
-      (@translation.x(point) for point in cuboid)
+    translate: (polygon) ->
+      (this.normalize(@translation.x(point)) for point in polygon)
 
-    projectCuboid: (cuboid) ->
-      @projectionMatrix.x(point) for point in cuboid
+    projectPolygon: (polygon) ->
+      (@projectionMatrix.x(point) for point in polygon)
+      (@projectionMatrix.x(point) for point in polygon)
 
     calculateProjectionMatrix: ->
       $M([
@@ -94,7 +94,7 @@ namespace "coffeecam", (exports) ->
         [0,0,-1,0],
       ]).transpose()
 
-    normalize: (matrix) ->
-      matrix.multiply(1/matrix.e(matrix.rows(), matrix.cols()))
+    normalize: (vector) ->
+      vector.multiply(vector.e(vector.dimensions()))
 
   exports.Camera = Camera
