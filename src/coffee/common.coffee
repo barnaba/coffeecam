@@ -4,5 +4,5 @@ namespace = (target, name, block) ->
   target = target[item] or= {} for item in name.split '.'
   block target, top
 
-namespace "coffeecam", (exports) ->
+namespace "common", (exports) ->
   exports.namespace = namespace
