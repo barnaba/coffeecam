@@ -26,3 +26,8 @@ body {
   display: inline-block;
   margin-bottom: 30px;
 }
+
+/* line 34 */
+#canvas {
+  background: black;
+}
