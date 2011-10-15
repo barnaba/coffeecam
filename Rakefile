@@ -1,7 +1,7 @@
 task :build do
   system "coffee -o src/javascripts -c src/coffee"
   system "staticmatic build ."
-  system "cp -r src/javascripts site/javascripts"
+  system "cp -vr src/javascripts site/"
 end
 
 task :server do
