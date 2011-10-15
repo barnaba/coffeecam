@@ -27,6 +27,7 @@ namespace "coffeecam", (exports) ->
         [0,0,0,1],
       ])
       @translation = this.normalize(@translation.x(matrix))
+      this.project()
 
     rotate_x: (rad) ->
       matrix = $M([
@@ -37,6 +38,7 @@ namespace "coffeecam", (exports) ->
       ])
       #@translation = (@translation.x(matrix))
       @translation = this.normalize(matrix.x(@translation))
+      this.project()
 
     rotate_y: (rad) ->
       matrix = $M([
@@ -46,8 +48,9 @@ namespace "coffeecam", (exports) ->
         [0,0,0,1],
       ])
       @translation = this.normalize(@translation.x(matrix))
+      this.project()
 
-    rotate_z: (deg) ->
+    rotate_z: (rad) ->
       matrix = $M([
         [Math.cos(rad),-Math.sin(rad),0,0],
         [Math.sin(rad),Math.cos(rad),0,0],
@@ -55,6 +58,7 @@ namespace "coffeecam", (exports) ->
         [0,0,0,1],
       ])
       @translation = this.normalize(@translation.x(matrix))
+      this.project()
 
     project: ->
       translatedCuboids = (this.translate(cuboid) for cuboid in @cuboids)
@@ -62,8 +66,8 @@ namespace "coffeecam", (exports) ->
       projectedCuboids = (this.projectCuboid(cuboid) for cuboid in translatedCuboids)
       canvas = document.getElementById("canvas")
       ctx = canvas.getContext("2d")
+      ctx.clearRect(0,0,800,600)
       ctx.strokeStyle = "#FFFFFF"
-      canvas.width = canvas.width
       for cuboid in projectedCuboids
         ctx.beginPath()
         ctx.moveTo(cuboid[3].e(1), cuboid[3].e(2))
