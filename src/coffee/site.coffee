@@ -11,10 +11,34 @@ $(document).ready ->
   polygons = coffeecam.getScene()
   cam = new coffeecam.Camera(polygons, canvas, viewport)
   cam.move($V([0,1000,-1000]))
-  cam.rotateX(-0.2)
 
   move = 20
   rotation_step = 0.08
+
+
+  #demo stuff 
+ 
+  i = 0
+  dir = true
+  max = 200
+
+  window.demo1 = ->
+    cam.move($V([30,0,0]))
+    cam.rotateY(0.005)
+    setTimeout demo1, 10
+
+  window.demo2 = ->
+    if (dir)
+      cam.move($V([0,0,50]))
+      cam.rotateZ(Math.PI/100)
+    else
+      cam.rotateX(Math.PI/50)
+    if (i++>=max)
+      i=0
+      dir=!dir
+      max = (if dir then 200 else 50)
+      console.log max
+    setTimeout demo2, 10
 
   new coffeecam.Controller
     "d": -> cam.move($V([-move,0,0]))
@@ -34,3 +58,4 @@ $(document).ready ->
 
     "1": -> cam.change_zoom(1.1)
     "2": -> cam.change_zoom(1/1.1)
+

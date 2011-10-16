@@ -46,7 +46,7 @@ namespace "coffeecam", (exports) ->
 
   exports.getScene = ->
     polygons = []
-    for i in [0..10]
-      polygons.push getPolygonsForCuboid(-800,0,i*(-1000),200,-200-Math.random()*1000,200 + Math.random()*400)
-      polygons.push getPolygonsForCuboid(800,0,i*(-1000),200,-200-Math.random()*1000,200 + Math.random()*400)
+    for i in [0..15]
+      polygons.push getPolygonsForCuboid(-800,0,i*(-1000)+2000,200,-200-Math.random()*1000,200 + Math.random()*400)
+      polygons.push getPolygonsForCuboid(800,0,i*(-1000)+2000,200,-200-Math.random()*1000,200 + Math.random()*400)
     [].concat polygons...
