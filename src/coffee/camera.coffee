@@ -61,8 +61,6 @@ namespace "coffeecam", (exports) ->
     drawLineIfValid = (ctx, v1, v2) ->
       [x1, y1, z1] = v1.elements
       [x2, y2, z2] = v2.elements
-
-      console.log "z1 #{z1}, z2 #{z2}"
       if ( -1 < z1 < 1 and -1 < z2 < 1)
         ctx.beginPath()
         ctx.moveTo(x1*400 + 400, y1*300 + 300)
@@ -101,7 +99,7 @@ namespace "coffeecam", (exports) ->
       $M([
         [2*@viewport.near/(@viewport.right - @viewport.left)*@zoom, 0, (@viewport.right + @viewport.left)/(@viewport.right - @viewport.left), 0],
         [0, 2*@viewport.near/(@viewport.top - @viewport.bottom)*@zoom, (@viewport.top + @viewport.bottom)/(@viewport.top - @viewport.bottom), 0],
-        [0, 0, -(@viewport.far + @viewport.near)/(@viewport.far - @viewport.near), (-2 * @viewport.far * @viewport.near)/(@viewport.far - @viewport.near)],
+        [0, 0, (@viewport.far + @viewport.near)/(@viewport.far - @viewport.near), (2 * @viewport.far * @viewport.near)/(@viewport.far - @viewport.near)],
         [0,0,-1,0],
       ])
 
