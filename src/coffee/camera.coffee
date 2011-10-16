@@ -8,8 +8,8 @@ namespace "coffeecam", (exports) ->
         right: 400,
         bottom: -300,
         top: 300,
-        near: 5,
-        far: 800 
+        near: 300,
+        far: 8000
       }
       @zoom = 1
 
@@ -58,16 +58,22 @@ namespace "coffeecam", (exports) ->
       @zoom *= z
       this.draw()
 
-    drawPolygon : (ctx, polygon) ->
+    drawLineIfValid = (ctx, v1, v2) ->
+      [x1, y1] = v1.elements
+      [x2, y2] = v2.elements
+
+      if (x1 * x2 > 0 or Math.abs(x1 - x2) < 2) and (y1 * y2 > 0 or Math.abs(y1 - y2) < 2)
         ctx.beginPath()
-        last = (polygon.length - 1)
-        ctx.moveTo(polygon[last].e(1)*400 + 400, polygon[last].e(2)*300 + 300)
-        ctx.lineTo(polygon[0].e(1)*400 + 400, polygon[0].e(2)*300 + 300)
+        ctx.moveTo(x1*400 + 400, y1*300 + 300)
+        ctx.lineTo(x2*400 + 400, y2*300 + 300)
         ctx.stroke()
-        for point in polygon
-          ctx.lineTo(point.e(1)*400 + 400, point.e(2)*300 + 300)
-          console.log "#{point.e(1)}, #{point.e(2)}"
-          ctx.stroke()
+
+    drawPolygon : (ctx, polygon) ->
+        last = (polygon.length - 1)
+        for i in [0..last]
+          current = polygon[i]
+          next = polygon[(i + 1)%polygon.length]
+          drawLineIfValid(ctx, current, next)
 
     draw : ->
       this.project()
