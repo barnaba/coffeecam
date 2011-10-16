@@ -59,10 +59,11 @@ namespace "coffeecam", (exports) ->
       this.draw()
 
     drawLineIfValid = (ctx, v1, v2) ->
-      [x1, y1] = v1.elements
-      [x2, y2] = v2.elements
+      [x1, y1, z1] = v1.elements
+      [x2, y2, z2] = v2.elements
 
-      if (x1 * x2 > 0 or Math.abs(x1 - x2) < 2) and (y1 * y2 > 0 or Math.abs(y1 - y2) < 2)
+      console.log "z1 #{z1}, z2 #{z2}"
+      if ( -1 < z1 < 1 and -1 < z2 < 1)
         ctx.beginPath()
         ctx.moveTo(x1*400 + 400, y1*300 + 300)
         ctx.lineTo(x2*400 + 400, y2*300 + 300)
