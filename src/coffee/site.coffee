@@ -10,7 +10,7 @@ $(document).ready ->
   canvas = document.getElementById("canvas")
   polygons = coffeecam.getScene()
   cam = new coffeecam.Camera(polygons, canvas, viewport)
-  cam.move($V([0,1000,-1000]))
+  cam.move($V([0,2000,-1000]))
 
   move = 20
   rotation_step = 0.08
@@ -23,9 +23,9 @@ $(document).ready ->
   max = 200
 
   window.demo1 = ->
-    cam.move($V([30,0,0]))
-    cam.rotateY(0.005)
-    setTimeout demo1, 10
+    cam.move($V([130,0,0]))
+    cam.rotateY(0.03)
+    setTimeout demo1, 3
 
   window.demo2 = ->
     if (dir)
