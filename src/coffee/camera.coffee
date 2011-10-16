@@ -1,101 +1,69 @@
 namespace "coffeecam", (exports) ->
+
   class Camera
-    constructor: (polygons) ->
-      @polygons = polygons
-      @translation = Matrix.I(4)
-      @viewport = {
-        left : -400,
-        right: 400,
-        bottom: -300,
-        top: 300,
-        near: 300,
-        far: 8000
-      }
+
+    constructor: (@polygons, @canvas, @viewport) ->
+      @ctx = @canvas.getContext("2d")
+      @ctx.strokeStyle = "#15abc3"
+
       @zoom = 1
+      @transformation = Matrix.I(4)
+      @projectionMatrix = this.calculateProjectionMatrix()
 
+      @move = this.decorateTransformation(moveTransformation)
+      @rotateX = this.decorateTransformation(rotateXTransformation)
+      @rotateY = this.decorateTransformation(rotateYTransformation)
+      @rotateZ = this.decorateTransformation(rotateZTransformation)
 
-    move: (v) ->
-      matrix = $M([
-        [1,0,0,v.e(1)],
-        [0,1,0,v.e(2)],
-        [0,0,1,v.e(3)],
-        [0,0,0,1],
-      ])
-      @translation = matrix.x(@translation)
-      this.draw()
+      this.update()
 
-    rotate_x: (rad) ->
-      matrix = $M([
-        [1,0,0,0],
-        [0,Math.cos(rad),-Math.sin(rad),0],
-        [0,Math.sin(rad), Math.cos(rad),0],
-        [0,0,0,1],
-      ])
-      @translation = matrix.x(@translation)
-      this.draw()
-
-    rotate_y: (rad) ->
-      matrix = $M([
-        [Math.cos(rad),0,Math.sin(rad),0],
-        [0,1,0,0],
-        [-Math.sin(rad),0,Math.cos(rad),0],
-        [0,0,0,1],
-      ])
-      @translation = matrix.x(@translation)
-      this.draw()
-
-    rotate_z: (rad) ->
-      matrix = $M([
-        [Math.cos(rad),-Math.sin(rad),0,0],
-        [Math.sin(rad),Math.cos(rad),0,0],
-        [0,0,1,0],
-        [0,0,0,1],
-      ])
-      @translation = matrix.x(@translation)
-      this.draw()
+    decorateTransformation : (transformation) ->
+      return (args...) ->
+        matrix = transformation(args...)
+        @transformation = matrix.x(@transformation)
+        this.update()
 
     change_zoom: (z) ->
-      @zoom *= z
-      this.draw()
-
-    drawLineIfValid = (ctx, v1, v2) ->
-      [x1, y1, z1] = v1.elements
-      [x2, y2, z2] = v2.elements
-      if ( -1 < z1 < 1 and -1 < z2 < 1)
-        ctx.beginPath()
-        ctx.moveTo(x1*400 + 400, y1*300 + 300)
-        ctx.lineTo(x2*400 + 400, y2*300 + 300)
-        ctx.stroke()
-
-    drawPolygon : (ctx, polygon) ->
-        last = (polygon.length - 1)
-        for i in [0..last]
-          current = polygon[i]
-          next = polygon[(i + 1)%polygon.length]
-          drawLineIfValid(ctx, current, next)
-
-    draw : ->
-      this.project()
-      canvas = document.getElementById("canvas")
-      ctx = canvas.getContext("2d")
-      ctx.clearRect(0,0,800,600)
-      ctx.strokeStyle = "#00FF00"
-      for polygon in @projectedPolygons
-        this.drawPolygon(ctx, polygon)
-
-    project: ->
-      translatedPolygons = (this.translate(polygon) for polygon in @polygons)
+      if 0.5 < @zoom*z < 3
+        @zoom *= z
       @projectionMatrix = this.calculateProjectionMatrix()
-      @projectedPolygons = (this.projectPolygon(polygon) for polygon in translatedPolygons)
+      this.update()
+
+    update: ->
+      @ctx.clearRect(0,0,@canvas.width,@canvas.height)
+
+      translatedPolygons = (this.translate(polygon) for polygon in @polygons)
+      projectedPolygons = (this.projectPolygon(polygon) for polygon in translatedPolygons)
+      for polygon in projectedPolygons
+        this.drawPolygon(@ctx, polygon)
 
     translate: (polygon) ->
-      (@translation.x(point) for point in polygon)
+      (@transformation.x(point) for point in polygon)
 
     projectPolygon: (polygon) ->
-      (this.normalize(@projectionMatrix.x(point)) for point in polygon)
+      (normalize(@projectionMatrix.x(point)) for point in polygon)
+
+    drawPolygon: (ctx, polygon) ->
+        last = (polygon.length)
+        for i in [0...last]
+          current = polygon[i]
+          next = polygon[(i + 1)%last]
+          this.drawLineIfValid(ctx, current, next)
+
+    drawLineIfValid : (ctx, v1, v2) ->
+      [x1, y1, z1] = v1.elements
+      [x2, y2, z2] = v2.elements
+
+      if ( -1 < z1 < 1 and -1 < z2 < 1)
+        h = @canvas.height / 2
+        w = @canvas.width / 2
+
+        ctx.beginPath()
+        ctx.moveTo(x1*w + w, y1*h + h)
+        ctx.lineTo(x2*w + w, y2*h + h)
+        ctx.stroke()
 
     calculateProjectionMatrix: ->
-      # mostly constant variables (except zoom). Consider not calculating this every frame :-)
       $M([
         [2*@viewport.near/(@viewport.right - @viewport.left)*@zoom, 0, (@viewport.right + @viewport.left)/(@viewport.right - @viewport.left), 0],
         [0, 2*@viewport.near/(@viewport.top - @viewport.bottom)*@zoom, (@viewport.top + @viewport.bottom)/(@viewport.top - @viewport.bottom), 0],
@@ -103,8 +71,41 @@ namespace "coffeecam", (exports) ->
         [0,0,-1,0],
       ])
 
-    normalize: (vector) ->
+    normalize = (vector) ->
       w = 1/vector.e(vector.dimensions())
       vector.multiply(w)
+
+
+    moveTransformation = (v) ->
+      matrix = $M([
+        [1,0,0,v.e(1)],
+        [0,1,0,v.e(2)],
+        [0,0,1,v.e(3)],
+        [0,0,0,1],
+      ])
+
+    rotateXTransformation = (rad) ->
+      matrix = $M([
+        [1,0,0,0],
+        [0,Math.cos(rad),-Math.sin(rad),0],
+        [0,Math.sin(rad), Math.cos(rad),0],
+        [0,0,0,1],
+      ])
+
+    rotateYTransformation = (rad) ->
+      matrix = $M([
+        [Math.cos(rad),0,Math.sin(rad),0],
+        [0,1,0,0],
+        [-Math.sin(rad),0,Math.cos(rad),0],
+        [0,0,0,1],
+      ])
+
+    rotateZTransformation = (rad) ->
+      matrix = $M([
+        [Math.cos(rad),-Math.sin(rad),0,0],
+        [Math.sin(rad),Math.cos(rad),0,0],
+        [0,0,1,0],
+        [0,0,0,1],
+      ])
 
   exports.Camera = Camera
