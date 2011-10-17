@@ -1,26 +1,27 @@
-%canvas{:id => 'canvas', :width => '800px', :height => '600px'}
+%canvas{:id => "canvas", :width => "800px", :height => "600px"}
 
-%div
-  %h2 sterowanie
+#panel
+  %h2 Sterowanie
   %table
     %tr
       %th Klawisze
       %th Funkcja
     %tr 
       %td Strzałki
-      %td obroty wokół osi x,y
+      %td Obroty wokół osi X i Y
     %tr 
-      %td home, end
-      %td obrót wokół osi z
+      %td Home, End
+      %td Obrót wokół osi Z
     %tr 
-      %td WSAD
-      %td Ruch do przodu, tyłu i na boki
+      %td W, S, A, D
+      %td Ruch do przodu, do tyłu i na boki
     %tr
-      %td QZ
+      %td Q, Z
       %td Ruch w górę i w dół
     %tr
       %td 1, 2
-      %td zoom
+      %td Przybliżanie i oddalanie
 
-%input{:onclick => "demo1()", :type => "button", :value => "Demo 1"} 
-%input{:onclick => "demo2()", :type => "button", :value => "Demo 2"} 
+  %h2 Demonstracje
+  %input{:onclick => "demo1()", :type => "button", :value => "Demo 1"} 
+  %input{:onclick => "demo2()", :type => "button", :value => "Demo 2"} 
