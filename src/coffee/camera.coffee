@@ -32,16 +32,13 @@ namespace "coffeecam", (exports) ->
     update: ->
       @ctx.clearRect(0,0,@canvas.width,@canvas.height)
 
-      translatedPolygons = (this.translate(polygon) for polygon in @polygons)
-      projectedPolygons = (this.projectPolygon(polygon) for polygon in translatedPolygons)
+      @projectionTransformationMatrix = @projectionMatrix.x(@transformation)
+      projectedPolygons = (this.projectPolygon(polygon) for polygon in @polygons)
       for polygon in projectedPolygons
         this.drawPolygon(@ctx, polygon)
 
-    translate: (polygon) ->
-      (@transformation.x(point) for point in polygon)
-
     projectPolygon: (polygon) ->
-      (normalize(@projectionMatrix.x(point)) for point in polygon)
+      (normalize(@projectionTransformationMatrix.x(point)) for point in polygon)
 
     drawPolygon: (ctx, polygon) ->
         last = (polygon.length)
