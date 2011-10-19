@@ -23,11 +23,16 @@ namespace "coffeecam", (exports) ->
       [ tbl, tbr, bbr, bbl ]  # back
     ]
 
-  exports.getScene = ->
-    polygons = []
-    for i in [0..15]
-      polygons.push getPolygonsForCuboid(-3200,0,i*(-1000)+2000,200,-200-Math.random()*1000,200 + Math.random()*400)
-      polygons.push getPolygonsForCuboid(-800,0,i*(-1000)+2000,200,-200-Math.random()*1000,200 + Math.random()*400)
-      polygons.push getPolygonsForCuboid(800,0,i*(-1000)+2000,200,-200-Math.random()*1000,200 + Math.random()*400)
-      polygons.push getPolygonsForCuboid(3200,0,i*(-1000)+2000,200,-200-Math.random()*1000,200 + Math.random()*400)
-    [].concat polygons...
+  exports.getScene = (depthMax=1000) ->
+
+    randomVal = (min=0, max=1) ->
+      return -> min + Math.random() * (max - min)
+
+    depth = randomVal(200, depthMax)
+    height = randomVal(200, 1000)
+    width = -> 200
+
+    row = (blocks, startX=0, startY=0, startZ=0) ->
+      (getPolygonsForCuboid(startX, startY, startZ + depthMax*i, do width, do height, do depth) for i in [0..blocks])
+
+    [].concat row(15, -3200)... , row(15, -800)... , row(15, 800)... , row(15, 3200)...

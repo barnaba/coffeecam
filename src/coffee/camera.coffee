@@ -7,7 +7,12 @@ namespace "coffeecam", (exports) ->
       @ctx.strokeStyle = "#15abc3"
 
       @zoom = 1
-      @transformation = Matrix.I(4)
+      @transformation = $M([
+        [-1,0,0,0],
+        [0,-1,0,0],
+        [0,0,-1,0],
+        [0,0,0,1]
+      ])
       @projectionMatrix = this.calculateProjectionMatrix()
 
       @move = this.decorateTransformation(moveTransformation)
