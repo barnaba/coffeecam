@@ -1,4 +1,6 @@
 $(document).ready ->
+  currentDemo = -> return
+
   viewport = {
     left : -500,
     right: 500,
@@ -8,18 +10,23 @@ $(document).ready ->
     far: 10000
   }
   canvas = document.getElementById("canvas")
-  polygons = coffeecam.getScene()
-  cam = new coffeecam.Camera(polygons, canvas, viewport)
-  cam.move($V([0,2000,-1000]))
+
+  cam = null
+  
+  do window.reset = ->
+    currentDemo = -> return
+    polygons = coffeecam.getScene()
+    cam = new coffeecam.Camera(polygons, canvas, viewport)
+    cam.move($V([0,2000,-1000]))
 
   move = 200
   rotation_step = 0.1
 
   new coffeecam.Controller
-    "d": -> cam.move($V([move,0,0]))
+    "d": -> cam.move($V([-move,0,0]))
+    "a": -> cam.move($V([move,0,0]))
     "q": -> cam.move($V([0,move,0]))
     "w": -> cam.move($V([0,0,move]))
-    "a": -> cam.move($V([-move,0,0]))
     "s": -> cam.move($V([0,0,-move]))
     "z": -> cam.move($V([0,-move,0]))
     #arrows
@@ -42,12 +49,12 @@ $(document).ready ->
   dir = true
   max = 200
 
-  window.demo1 = ->
-    cam.move($V([130,0,0]))
-    cam.rotateY(0.03)
-    setTimeout demo1, 3
 
-  window.demo2 = ->
+  demo1 = ->
+    cam.move($V([300,0,0]))
+    cam.rotateY(0.03)
+
+  demo2 = ->
     if (dir)
       cam.move($V([0,0,50]))
       cam.rotateZ(Math.PI/100)
@@ -58,5 +65,16 @@ $(document).ready ->
       dir=!dir
       max = (if dir then 200 else 50)
       console.log max
-    setTimeout demo2, 10
+
+
+  do demo = ->
+    do currentDemo
+    setTimeout demo, 10
+
+  window.startDemo1 = ->
+    currentDemo = demo1
+
+  window.startDemo2= ->
+    currentDemo = demo2
+
 

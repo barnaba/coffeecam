@@ -33,6 +33,7 @@ namespace "coffeecam", (exports) ->
     width = -> 200
 
     row = (blocks, startX=0, startY=0, startZ=0) ->
-      (getPolygonsForCuboid(startX, startY, startZ + depthMax*i*1.1, do width, do height, do depth) for i in [0..blocks])
+      ( for i in [0...blocks]
+        getPolygonsForCuboid(startX, startY, startZ + depthMax*i*1.1, do width, do height, do depth))
 
     [].concat row(15, -3200)... , row(15, -800)... , row(15, 800)... , row(15, 3200)...
