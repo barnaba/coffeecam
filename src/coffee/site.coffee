@@ -13,7 +13,7 @@ $(document).ready ->
   cam.move($V([0,2000,-1000]))
 
   move = 20
-  rotation_step = 0.05
+  rotation_step = 0.08
 
 
   #demo stuff 
@@ -39,42 +39,22 @@ $(document).ready ->
       max = (if dir then 200 else 50)
       console.log max
     setTimeout demo2, 10
-    
-  friction = 0.9
-  rotfriction = 0.7
-  x = y = z = rx = ry = rz = 0
-
-  do tick = ->
-    cam.move($V([x,y,z]))
-    cam.rotateX(rx)
-    cam.rotateY(ry)
-    cam.rotateZ(rz)
-
-    x *= friction
-    y *= friction
-    z *= friction
-
-    rx *= rotfriction
-    ry *= rotfriction
-    rz *= rotfriction
-
-    setTimeout tick, 5
 
   new coffeecam.Controller
-    "d": -> x -= move
-    "a": -> x += move
-    "s": -> z -= move
-    "w": -> z += move
-    "z": -> y -= move
-    "q": -> y += move
+    "d": -> cam.move($V([-move,0,0]))
+    "a": -> cam.move($V([move,0,0]))
+    "s": -> cam.move($V([0,0,-move]))
+    "w": -> cam.move($V([0,0,move]))
+    "z": -> cam.move($V([0,-move,0]))
+    "q": -> cam.move($V([0,move,0]))
     #arrows
-    38: -> rx += rotation_step
-    40: -> rx -= rotation_step
-    39: -> ry += rotation_step
-    37: -> ry -= rotation_step
+    38: -> cam.rotateX(rotation_step)
+    40: -> cam.rotateX(-rotation_step)
+    39: -> cam.rotateY(rotation_step)
+    37: -> cam.rotateY(-rotation_step)
     # home + end
-    35: -> rz += rotation_step
-    36: -> rz -= rotation_step
+    35: -> cam.rotateZ(rotation_step)
+    36: -> cam.rotateZ(-rotation_step)
 
     "1": -> cam.change_zoom(1.1)
     "2": -> cam.change_zoom(1/1.1)
