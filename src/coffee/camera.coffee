@@ -5,6 +5,7 @@ namespace "coffeecam", (exports) ->
     constructor: (@polygons, @canvas, @viewport) ->
       @ctx = @canvas.getContext("2d")
       @ctx.strokeStyle = "#15abc3"
+      @ctx.fillStyle = "#000000"
 
       @zoom = 1
       @transformation = $M([
@@ -19,6 +20,9 @@ namespace "coffeecam", (exports) ->
       @rotateX = this.decorateTransformation(rotateXTransformation)
       @rotateY = this.decorateTransformation(rotateYTransformation)
       @rotateZ = this.decorateTransformation(rotateZTransformation)
+
+      @h = @canvas.height / 2
+      @w = @canvas.width / 2
 
       this.update()
 
@@ -39,7 +43,10 @@ namespace "coffeecam", (exports) ->
 
       @projectionTransformationMatrix = @projectionMatrix.x(@transformation)
       projectedPolygons = (this.projectPolygon(polygon) for polygon in @polygons)
-      for polygon in projectedPolygons
+      projectedPolygons = (polygon for polygon in projectedPolygons when visible(polygon))
+      sortedPolygons = projectedPolygons.sort(zBarycenterComparator).reverse()
+
+      for polygon in sortedPolygons
         this.drawPolygon(@ctx, polygon)
 
     projectPolygon: (polygon) ->
@@ -47,23 +54,20 @@ namespace "coffeecam", (exports) ->
 
     drawPolygon: (ctx, polygon) ->
         last = (polygon.length)
+
+        ctx.beginPath()
+        ctx.moveTo(polygon[0].e(1)*@w + @w, polygon[0].e(2)*@h + @h)
+
         for i in [0...last]
           current = polygon[i]
           next = polygon[(i + 1)%last]
-          this.drawLineIfValid(ctx, current, next)
-
-    drawLineIfValid : (ctx, v1, v2) ->
-      [x1, y1, z1] = v1.elements
-      [x2, y2, z2] = v2.elements
-
-      if ( -1 < z1 < 1 and -1 < z2 < 1)
-        h = @canvas.height / 2
-        w = @canvas.width / 2
-
-        ctx.beginPath()
-        ctx.moveTo(x1*w + w, y1*h + h)
-        ctx.lineTo(x2*w + w, y2*h + h)
+          this.drawLine(ctx, next)
+        ctx.fill()
         ctx.stroke()
+
+    drawLine: (ctx, v1) ->
+      [x2, y2, z2] = v1.elements
+      ctx.lineTo(x2*@w + @w, y2*@h + @h)
 
     calculateProjectionMatrix: ->
       $M([
@@ -72,6 +76,14 @@ namespace "coffeecam", (exports) ->
         [0, 0, (@viewport.far + @viewport.near)/(@viewport.far - @viewport.near), (2 * @viewport.far * @viewport.near)/(@viewport.far - @viewport.near)],
         [0,0,-1,0],
       ])
+
+    zBarycenterComparator = (p1, p2) ->
+      return zPolygonBarycenter(p2) - zPolygonBarycenter(p1)
+
+    zPolygonBarycenter = (polygon) ->
+      #our polygons are always quads...
+      reduceFunction = (barycenter, point) -> barycenter + point.e(3)/polygon.length
+      return polygon.reduce( reduceFunction, 0)
 
     normalize = (vector) ->
       w = 1/vector.e(vector.dimensions())
@@ -109,5 +121,8 @@ namespace "coffeecam", (exports) ->
         [0,0,1,0],
         [0,0,0,1],
       ])
+
+    visible = (polygon) ->
+      polygon.reduce (result, point) -> result and (-1 < point.e(3) < 1)
 
   exports.Camera = Camera
