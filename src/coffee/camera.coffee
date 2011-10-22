@@ -14,6 +14,7 @@ namespace "coffeecam", (exports) ->
         [0,0,-1,0],
         [0,0,0,1]
       ])
+      @cameraInScene = this.calculatePositionInScene()
       @projectionMatrix = this.calculateProjectionMatrix()
 
       @move = this.decorateTransformation(moveTransformation)
@@ -30,6 +31,7 @@ namespace "coffeecam", (exports) ->
       return (args...) ->
         matrix = transformation(args...)
         @transformation = matrix.x(@transformation)
+        @cameraInScene = this.calculatePositionInScene()
         this.update()
 
     change_zoom: (z) ->
@@ -40,10 +42,8 @@ namespace "coffeecam", (exports) ->
 
     update: ->
       @ctx.clearRect(0,0,@canvas.width,@canvas.height)
-
-      @polygons = @polygons.sort(this.zBarycenterComparator)
-
       @projectionTransformationMatrix = @projectionMatrix.x(@transformation)
+      @polygons = @polygons.sort(this.distanceComparator)
 
       projectedPolygons = (this.projectPolygon(polygon) for polygon in @polygons)
       projectedPolygons = (polygon for polygon in projectedPolygons when visible(polygon))
@@ -71,6 +71,9 @@ namespace "coffeecam", (exports) ->
       [x2, y2, z2] = v1.elements
       ctx.lineTo(x2*@w + @w, y2*@h + @h)
 
+    calculatePositionInScene : ->
+      normalize(@transformation.inverse().x($V([0,0,0,1])))
+
     calculateProjectionMatrix: ->
       $M([
         [2*@viewport.near/(@viewport.right - @viewport.left)*@zoom, 0, (@viewport.right + @viewport.left)/(@viewport.right - @viewport.left), 0],
@@ -79,19 +82,23 @@ namespace "coffeecam", (exports) ->
         [0,0,-1,0],
       ])
 
-    zBarycenterComparator: (p1, p2) =>
-      value = this.zPolygonBarycenter(p2) - this.zPolygonBarycenter(p1)
+
+    # Compare two polygons by the distance between their barycenter and camera
+
+    distanceComparator: (p1, p2) =>
+      value = this.distanceFromCamera(p2) - this.distanceFromCamera(p1)
       return value
 
-    zPolygonBarycenter: (polygon) =>
+    # Calculate distance between polygon's barycenter and the camera
+
+    distanceFromCamera: (polygon) =>
       reduceFunction = (barycenter, point) -> barycenter.add(point)
       barycenter = polygon.reduce(reduceFunction, $V([0,0,0,0])).multiply(1/4)
-      return @transformation.inverse().x($V([0,0,0,1])).subtract(barycenter).modulus()
+      return @cameraInScene.subtract(barycenter).modulus()
 
     normalize = (vector) ->
       w = 1/vector.e(vector.dimensions())
       vector.multiply(w)
-
 
     moveTransformation = (v) ->
       matrix = $M([
