@@ -41,20 +41,18 @@ namespace "coffeecam", (exports) ->
     update: ->
       @ctx.clearRect(0,0,@canvas.width,@canvas.height)
 
+      @polygons = @polygons.sort(this.zBarycenterComparator)
+
       @projectionTransformationMatrix = @projectionMatrix.x(@transformation)
-      transformedPolygons = (this.transformPolygon(polygon) for polygon in @polygons)
-      transformedPolygons = transformedPolygons.sort(zBarycenterComparator)
-      projectedPolygons = (this.projectPolygon(polygon) for polygon in transformedPolygons)
+
+      projectedPolygons = (this.projectPolygon(polygon) for polygon in @polygons)
       projectedPolygons = (polygon for polygon in projectedPolygons when visible(polygon))
 
       for polygon in projectedPolygons
         this.drawPolygon(@ctx, polygon)
 
     projectPolygon: (polygon) ->
-      (normalize(@projectionMatrix.x(point)) for point in polygon)
-
-    transformPolygon: (polygon) ->
-      (normalize(@transformation.x(point)) for point in polygon)
+      (normalize(@projectionTransformationMatrix.x(point)) for point in polygon)
 
     drawPolygon: (ctx, polygon) ->
         last = (polygon.length)
@@ -81,14 +79,14 @@ namespace "coffeecam", (exports) ->
         [0,0,-1,0],
       ])
 
-    zBarycenterComparator = (p1, p2) ->
-      value = zPolygonBarycenter(p2).modulus() - zPolygonBarycenter(p1).modulus()
+    zBarycenterComparator: (p1, p2) =>
+      value = this.zPolygonBarycenter(p2) - this.zPolygonBarycenter(p1)
       return value
 
-    zPolygonBarycenter = (polygon) ->
-      #our polygons are always quads...
+    zPolygonBarycenter: (polygon) =>
       reduceFunction = (barycenter, point) -> barycenter.add(point)
-      return polygon.reduce(reduceFunction, $V([0,0,0,0])).multiply(1/4)
+      barycenter = polygon.reduce(reduceFunction, $V([0,0,0,0])).multiply(1/4)
+      return @transformation.inverse().x($V([0,0,0,1])).subtract(barycenter).modulus()
 
     normalize = (vector) ->
       w = 1/vector.e(vector.dimensions())
