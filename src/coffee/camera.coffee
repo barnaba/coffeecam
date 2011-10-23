@@ -43,7 +43,9 @@ namespace "coffeecam", (exports) ->
     update: ->
       @ctx.clearRect(0,0,@canvas.width,@canvas.height)
       @projectionTransformationMatrix = @projectionMatrix.x(@transformation)
-      @polygons = @polygons.sort(this.distanceComparator)
+      for polygon in @polygons
+        polygon.d = this.distanceFromCamera(polygon)
+      @polygons = @polygons.sort(distanceComparator)
 
       projectedPolygons = (this.projectPolygon(polygon) for polygon in @polygons)
       projectedPolygons = (polygon for polygon in projectedPolygons when visible(polygon))
@@ -85,9 +87,8 @@ namespace "coffeecam", (exports) ->
 
     # Compare two polygons by the distance between their barycenter and camera
 
-    distanceComparator: (p1, p2) =>
-      value = this.distanceFromCamera(p2) - this.distanceFromCamera(p1)
-      return value
+    distanceComparator = (p1, p2) =>
+      p2.d - p1.d
 
     # Calculate distance between polygon's barycenter and the camera
 
