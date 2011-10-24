@@ -94,7 +94,7 @@ namespace "coffeecam", (exports) ->
 
     distanceFromCamera: (polygon) =>
       reduceFunction = (barycenter, point) -> barycenter.add(point)
-      barycenter = polygon.reduce(reduceFunction, $V([0,0,0,0])).multiply(1/4)
+      barycenter = polygon.reduce(reduceFunction, $V([0,0,0,0])).multiply(1/polygon.length)
       return @cameraInScene.subtract(barycenter).modulus()
 
     normalize = (vector) ->

@@ -88,6 +88,48 @@ Projekt jest dostępny do testowania na następujących serwerach:
   \item \href{http://volt.iem.pw.edu.pl/~pienkowb/}{Volt}\footnote{\url{http://volt.iem.pw.edu.pl/~pienkowb/}} (Niekoniecznie aktualna wersja)
 \end{itemize}
 
+\section{Eliminacja powierzchni zasłoniętych}
+Celem drugiego etapu projektu było zaimplementowanie wybranego algorytmu eliminacji powierzchni zasłoniętych.
+
+Ze względu na prostotę sceny zdecydowaliśmy na algorytm malarski.
+Działanie tego algorytmu polega na rysowaniu obiektów w~kolejności ustalonej przez ich odległość od kamery.
+
+\subsection{Implementacja}
+Algorytm nie zajął zbyt wiele miejsca i~nie uznaliśmy za stosowne dodawać kolejnej klasy do obiektu.
+Dodaliśmy kod do klasy \emph{Camera}.
+
+Działanie algorytmu składa się z~trzech kroków.
+W~pierwszym kroku obliczamy współrzędne kamery w~układzie odniesienia sceny.
+
+Ponieważ kamera zawsze znajduje się w~punkcie
+\[
+P_{cam} = 
+\begin{bmatrix}
+  0 & 0 & 0 & 0 \\
+  0 & 0 & 0 & 0 \\
+  0 & 0 & 0 & 0 \\
+  0 & 0 & 0 & 1
+\end{bmatrix}
+\]
+
+i~w~każdej klatce zna swoją pozycję względem początku układu współrzędnych sceny (daną macierzą transformacji \texttt{@transformation}), możemy łatwo obliczyć położenie kamery w~układzie współrzędnych sceny.
+
+Transformacja, której szukamy (transformująca położenie z~układu kamery do układu sceny) jest transformacją odwrotną do \texttt{@transformation}, zatem współrzędne kamery w~układzie współrzędnych możemy policzyć w~następujący sposób:
+$$
+\tt{} P_{cam}^\prime = \tt{@transformation}\tt^{-1} \times P_{cam}
+$$
+
+Następnym krokiem jest obliczenie odległości środków ciężkości rysowanych wielokątów od punktu $P_{cam}^\prime$. 
+W~tym celu obliczamy środek ciężkości wielokąta \texttt{barycenter}, gdzie $P_k$ to kolejne wierzchołki wielokąta:`
+
+$$ \tt{barycenter} =\frac{1}{\tt{polygon.length}}  \sum_{k=0}^{\tt{polygon.length-1}} P_k $$
+
+i~jego odległość od $P_{cam}^\prime$:
+
+$$ \tt{distance} = \lvert \tt{barycenter} - P_{cam}^\prime \rvert $$
+
+Tak obliczone odległości przypisujemy do wielokątów, które następnie sortujemy wg. tych odległości (malejąco).
+
 \begin{thebibliography}{9}
 
 \bibitem{openGL}
@@ -99,7 +141,7 @@ Projekt jest dostępny do testowania na następujących serwerach:
   Dariusz Sawicki,
   Grafika komputerowa i~wizualizacja,
   \url{http://wazniak.mimuw.edu.pl/index.php?title=Grafika_komputerowa_i_wizualizacja}
-
+  
 \end{thebibliography}
 
 \end{document}
