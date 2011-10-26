@@ -36,4 +36,9 @@ namespace "coffeecam", (exports) ->
       ( for i in [0...blocks]
         getPolygonsForCuboid(startX, startY, startZ + depthMax*i*1.1, do width, do height, do depth))
 
-    [].concat row(15, -3200)... , row(15, -800)... , row(15, 800)... , row(15, 3200)...
+    ret = [].concat row(15, -3200)... , row(15, -800)... , row(15, 800)... , row(15, 3200)...
+
+   #  polygons demostrating some problems with painters algorithm
+    ret.push  [$V([200, 1500, 100, 1]), $V([800, 1500, 100, 1]), $V([800, 1900, 100, 1]), $V([200, 1900, 100, 1])]
+    ret.push  [$V([0, 0, 0, 1]), $V([0, 2000, 0, 1]), $V([300, 2000, 300, 1]), $V([300, 0, 300, 1])]
+    ret
