@@ -3,3 +3,11 @@ window.namespace = (target, name, block) ->
   top    = target
   target = target[item] or= {} for item in name.split '.'
   block target, top
+
+namespace "coffeecam", (exports) ->
+  exports.point = (x, y, z) ->
+    $V([x,y,z,1])
+
+  exports.normalize = (vector) ->
+    w = 1/vector.e(vector.dimensions())
+    vector.multiply(w)

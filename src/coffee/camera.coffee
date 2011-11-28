@@ -54,7 +54,7 @@ namespace "coffeecam", (exports) ->
         this.drawPolygon(@ctx, polygon)
 
     projectPolygon: (polygon) ->
-      (normalize(@projectionTransformationMatrix.x(point)) for point in polygon)
+      (coffeecam.normalize(@projectionTransformationMatrix.x(point)) for point in polygon)
 
     drawPolygon: (ctx, polygon) ->
         last = (polygon.length)
@@ -74,7 +74,7 @@ namespace "coffeecam", (exports) ->
       ctx.lineTo(x2*@w + @w, y2*@h + @h)
 
     calculatePositionInScene : ->
-      normalize(@transformation.inverse().x($V([0,0,0,1])))
+      coffeecam.normalize(@transformation.inverse().x($V([0,0,0,1])))
 
     calculateProjectionMatrix: ->
       $M([
@@ -97,9 +97,6 @@ namespace "coffeecam", (exports) ->
       barycenter = polygon.reduce(reduceFunction, $V([0,0,0,0])).multiply(1/polygon.length)
       return @cameraInScene.subtract(barycenter).modulus()
 
-    normalize = (vector) ->
-      w = 1/vector.e(vector.dimensions())
-      vector.multiply(w)
 
     moveTransformation = (v) ->
       matrix = $M([

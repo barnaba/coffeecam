@@ -1,18 +1,19 @@
 namespace "coffeecam", (exports) ->
+  point = coffeecam.point
 
   getPolygonsForCuboid = (x,y,z,w,h,d) ->
     xw = x + w
     yh = y + h
     zd = z + d
 
-    tfl = $V([x  , yh , zd , 1])
-    tbl = $V([x  , yh , z  , 1])
-    tfr = $V([xw , yh , zd , 1])
-    tbr = $V([xw , yh , z  , 1])
-    bfl = $V([x  , y  , zd , 1])
-    bbl = $V([x  , y  , z  , 1])
-    bfr = $V([xw , y  , zd , 1])
-    bbr = $V([xw , y  , z  , 1])
+    tfl = point(x  , yh , zd)
+    tbl = point(x  , yh , z )
+    tfr = point(xw , yh , zd)
+    tbr = point(xw , yh , z )
+    bfl = point(x  , y  , zd)
+    bbl = point(x  , y  , z )
+    bfr = point(xw , y  , zd)
+    bbr = point(xw , y  , z )
 
     [
       [ tfl, tbl, tbr, tfr ], # top
