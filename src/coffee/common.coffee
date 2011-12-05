@@ -9,9 +9,8 @@ namespace "coffeecam", (exports) ->
     $V([x,y,z,1])
 
   normalize = (vector) ->
-    w = 1/vector.e(4)
+    w = 1/vector.e(vector.dimensions())
     vector.multiply(w)
-    return vector
 
   class Polygon
     constructor: (@points...) ->
@@ -21,14 +20,30 @@ namespace "coffeecam", (exports) ->
       @points.reduce(reduceFunction, $V([0,0,0,0])).multiply(1/@points.length)
 
     is_visible : ->
-      #@points.reduce (result, point) -> result and (-1 < point.e(3) < 1)
-      true
+      @points.reduce (result, point) -> result and (-1 < point.e(3) < 1)
 
-    transform : (matrix) ->
-      points = (normalize(matrix.x(point)) for point in @points)
+    transform : (transformation_matrix) ->
+      points = (normalize(transformation_matrix.x(point)) for point in @points)
       polygon = new Polygon(points...)
       polygon.d = @d
       polygon
+
+    draw: (ctx, w, h) ->
+        drawLine = (to) ->
+          [x2, y2, z2] = to.elements
+          ctx.lineTo(x2*w + w, y2*h + h)
+
+        last = (@points.length)
+
+        ctx.beginPath()
+        ctx.moveTo(@points[0].e(1)*w + w, @points[0].e(2)*h + h)
+
+        for i in [0...last]
+          current = @points[i]
+          next = @points[(i + 1)%last]
+          drawLine(next)
+        ctx.fill()
+        ctx.stroke()
 
   exports.Polygon = Polygon
   exports.normalize = normalize

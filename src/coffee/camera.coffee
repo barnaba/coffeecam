@@ -14,6 +14,7 @@ namespace "coffeecam", (exports) ->
         [0,0,-1,0],
         [0,0,0,1]
       ])
+
       @cameraInScene = this.calculatePositionInScene()
       @projectionMatrix = this.calculateProjectionMatrix()
 
@@ -46,37 +47,15 @@ namespace "coffeecam", (exports) ->
 
       for object in @objects
         object.d = this.distanceFromCamera(object)
-
       @objects = @objects.sort(distanceComparator)
-
-      projectedObjects = (object.transform(@projectionTransformationMatrix) for object in @objects)
-      visibleObjects = (object for object in projectedObjects when object.is_visible())
+      projectedObjects = (o.transform(@projectionTransformationMatrix) for o in @objects)
+      visibleObjects = (o for o in projectedObjects when o.is_visible())
 
       for object in visibleObjects
-        this.drawPolygon(@ctx, object.points)
-
-    projectPolygon: (polygon) ->
-      (coffeecam.normalize(@projectionTransformationMatrix.x(point)) for point in polygon)
-
-    drawPolygon: (ctx, polygon) ->
-        last = (polygon.length)
-
-        ctx.beginPath()
-        ctx.moveTo(polygon[0].e(1)*@w + @w, polygon[0].e(2)*@h + @h)
-
-        for i in [0...last]
-          current = polygon[i]
-          next = polygon[(i + 1)%last]
-          this.drawLine(ctx, next)
-        ctx.fill()
-        ctx.stroke()
-
-    drawLine: (ctx, v1) ->
-      [x2, y2, z2] = v1.elements
-      ctx.lineTo(x2*@w + @w, y2*@h + @h)
+        object.draw(@ctx, @w, @h)
 
     calculatePositionInScene : ->
-      coffeecam.normalize(@transformation.inverse().x coffeecam.point(0, 0, 0))
+      coffeecam.normalize(@transformation.inverse().x($V([0,0,0,1])))
 
     calculateProjectionMatrix: ->
       $M([
@@ -125,6 +104,5 @@ namespace "coffeecam", (exports) ->
         [0,0,1,0],
         [0,0,0,1],
       ])
-
 
   exports.Camera = Camera
