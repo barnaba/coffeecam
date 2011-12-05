@@ -28,22 +28,23 @@ namespace "coffeecam", (exports) ->
       polygon.d = @d
       polygon
 
-    draw: (ctx, w, h) ->
-        drawLine = (to) ->
-          [x2, y2, z2] = to.elements
-          ctx.lineTo(x2*w + w, y2*h + h)
+    draw: (ctx) ->
 
         last = (@points.length)
 
         ctx.beginPath()
-        ctx.moveTo(@points[0].e(1)*w + w, @points[0].e(2)*h + h)
+        ctx.moveTo(@points[0].e(1), @points[0].e(2))
 
         for i in [0...last]
           current = @points[i]
           next = @points[(i + 1)%last]
-          drawLine(next)
+          drawLine(ctx, next)
         ctx.fill()
         ctx.stroke()
+
+    drawLine = (ctx, to) ->
+      [x2, y2, z2] = to.elements
+      ctx.lineTo(x2, y2)
 
   exports.Polygon = Polygon
   exports.normalize = normalize
