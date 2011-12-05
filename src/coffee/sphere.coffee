@@ -1,9 +1,12 @@
-namespace "coffeecam", (exports) ->
+#namespace "coffeecam", (exports) ->
 
-  class Sphere
-    constructor: (@center, @radius) ->
+  #class Sphere
+    #constructor: (@center, @radius) ->
 
-    boundingRect: (transformationMatrix, projectionMatrix) ->
+    #boundingRect: (transformationMatrix, projectionMatrix) ->
+
+    #draw : (ctx) ->
 
 
-exports Sphere = Sphere
+
+#exports Sphere = Sphere

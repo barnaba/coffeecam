@@ -2,7 +2,7 @@ namespace "coffeecam", (exports) ->
 
   class Camera
 
-    constructor: (@polygons, @canvas, @viewport) ->
+    constructor: (@objects, @canvas, @viewport) ->
       @ctx = @canvas.getContext("2d")
       @ctx.strokeStyle = "#15abc3"
       @ctx.fillStyle = "#000000"
@@ -43,15 +43,17 @@ namespace "coffeecam", (exports) ->
     update: ->
       @ctx.clearRect(0,0,@canvas.width,@canvas.height)
       @projectionTransformationMatrix = @projectionMatrix.x(@transformation)
-      for polygon in @polygons
-        polygon.d = this.distanceFromCamera(polygon)
-      @polygons = @polygons.sort(distanceComparator)
 
-      projectedPolygons = (this.projectPolygon(polygon) for polygon in @polygons)
-      projectedPolygons = (polygon for polygon in projectedPolygons when visible(polygon))
+      for object in @objects
+        object.d = this.distanceFromCamera(object)
 
-      for polygon in projectedPolygons
-        this.drawPolygon(@ctx, polygon)
+      @objects = @objects.sort(distanceComparator)
+
+      projectedObjects = (object.transform(@projectionTransformationMatrix) for object in @objects)
+      visibleObjects = (object for object in projectedObjects when object.is_visible())
+
+      for object in visibleObjects
+        this.drawPolygon(@ctx, object.points)
 
     projectPolygon: (polygon) ->
       (coffeecam.normalize(@projectionTransformationMatrix.x(point)) for point in polygon)
@@ -74,7 +76,7 @@ namespace "coffeecam", (exports) ->
       ctx.lineTo(x2*@w + @w, y2*@h + @h)
 
     calculatePositionInScene : ->
-      coffeecam.normalize(@transformation.inverse().x($V([0,0,0,1])))
+      coffeecam.normalize(@transformation.inverse().x coffeecam.point(0, 0, 0))
 
     calculateProjectionMatrix: ->
       $M([
@@ -85,18 +87,12 @@ namespace "coffeecam", (exports) ->
       ])
 
 
-    # Compare two polygons by the distance between their barycenter and camera
-
     distanceComparator = (p1, p2) =>
       p2.d - p1.d
 
-    # Calculate distance between polygon's barycenter and the camera
-
-    distanceFromCamera: (polygon) =>
-      reduceFunction = (barycenter, point) -> barycenter.add(point)
-      barycenter = polygon.reduce(reduceFunction, $V([0,0,0,0])).multiply(1/polygon.length)
+    distanceFromCamera: (object) =>
+      barycenter = object.barycenter()
       return @cameraInScene.subtract(barycenter).modulus()
-
 
     moveTransformation = (v) ->
       matrix = $M([
@@ -130,7 +126,5 @@ namespace "coffeecam", (exports) ->
         [0,0,0,1],
       ])
 
-    visible = (polygon) ->
-      polygon.reduce (result, point) -> result and (-1 < point.e(3) < 1)
 
   exports.Camera = Camera
