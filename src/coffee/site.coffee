@@ -64,7 +64,6 @@ $(document).ready ->
       i=0
       dir=!dir
       max = (if dir then 200 else 50)
-      console.log max
 
 
   do demo = ->

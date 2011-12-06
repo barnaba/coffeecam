@@ -48,7 +48,7 @@ namespace "coffeecam", (exports) ->
       for object in @objects
         object.d = this.distanceFromCamera(object)
       @objects = @objects.sort(distanceComparator)
-      projectedObjects = (o.transform(@projectionTransformationMatrix) for o in @objects)
+      projectedObjects = (o.transform(this) for o in @objects)
       visibleObjects = (o for o in projectedObjects when o.is_visible())
 
       for object in visibleObjects
