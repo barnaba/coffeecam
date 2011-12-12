@@ -17,7 +17,7 @@ $(document).ready ->
     currentDemo = -> return
     polygons = coffeecam.getScene()
     cam = new coffeecam.Camera(polygons, canvas, viewport)
-    cam.move($V([0,2000,-1000]))
+    cam.move($V([0,2000,0]))
 
   move = 200
   rotation_step = 0.1

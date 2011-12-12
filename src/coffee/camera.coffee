@@ -6,6 +6,7 @@ namespace "coffeecam", (exports) ->
       @ctx = @canvas.getContext("2d")
       @ctx.strokeStyle = "#15abc3"
       @ctx.fillStyle = "#000000"
+      @lightsource = $V([200,00,8000])
 
       @zoom = 1
       @transformation = $M([
@@ -17,6 +18,13 @@ namespace "coffeecam", (exports) ->
 
       @h = @canvas.height / 2
       @w = @canvas.width / 2
+      @scaling = $M([
+        [@w,0,0,@w],
+        [0,@h,0,@h],
+        [0,0,1,0],
+        [0,0,0,1]
+      ])
+
       @cameraInScene = this.calculatePositionInScene()
       @projectionMatrix = this.calculateProjectionMatrix()
 
@@ -52,20 +60,15 @@ namespace "coffeecam", (exports) ->
       visibleObjects = (o for o in projectedObjects when o.is_visible())
 
       for object in visibleObjects
-        object.draw(@ctx)
+        object.draw(this)
 
     calculatePositionInScene : ->
       coffeecam.normalize(@transformation.inverse().x($V([0,0,0,1])))
 
     calculateProjectionMatrix: ->
       $M([
-        [@w,0,0,@w],
-        [0,@h,0,@h],
-        [0,0,1,0],
-        [0,0,0,1]
-      ]).x $M([
-        [2*@viewport.near/(@viewport.right - @viewport.left)*@zoom, 0, (@viewport.right + @viewport.left)/(@viewport.right - @viewport.left), 0],
-        [0, 2*@viewport.near/(@viewport.top - @viewport.bottom)*@zoom, (@viewport.top + @viewport.bottom)/(@viewport.top - @viewport.bottom), 0],
+        [@viewport.near/@viewport.right, 0, 0, 0],
+        [0, @viewport.near/@viewport.top, 0, 0],
         [0, 0, (@viewport.far + @viewport.near)/(@viewport.far - @viewport.near), (2 * @viewport.far * @viewport.near)/(@viewport.far - @viewport.near)],
         [0,0,-1,0],
       ])
