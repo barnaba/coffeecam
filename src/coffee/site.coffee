@@ -38,8 +38,8 @@ $(document).ready ->
     35: -> cam.rotateZ(rotation_step)
     36: -> cam.rotateZ(-rotation_step)
 
-    "1": -> cam.change_zoom(1.1)
-    "2": -> cam.change_zoom(1/1.1)
+    "1": -> cam.moveLight(1000,0,0)
+    "2": -> cam.moveLight(-1000,0,0)
 
 
 
