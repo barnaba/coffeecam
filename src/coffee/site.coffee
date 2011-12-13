@@ -19,7 +19,7 @@ $(document).ready ->
     cam = new coffeecam.Camera(polygons, canvas, viewport)
     cam.move($V([0,2000,0]))
 
-  move = 200
+  move = 2000
   rotation_step = 0.1
 
   new coffeecam.Controller

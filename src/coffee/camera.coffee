@@ -6,7 +6,6 @@ namespace "coffeecam", (exports) ->
       @ctx = @canvas.getContext("2d")
       @ctx.strokeStyle = "#15abc3"
       @ctx.fillStyle = "#000000"
-      @lightsource = $V([200,00,8000])
 
       @zoom = 1
       @transformation = $M([
@@ -15,6 +14,7 @@ namespace "coffeecam", (exports) ->
         [0,0,-1,0],
         [0,0,0,1]
       ])
+      @lightsource = this.lightSource()
 
       @h = @canvas.height / 2
       @w = @canvas.width / 2
@@ -36,11 +36,17 @@ namespace "coffeecam", (exports) ->
 
       this.update()
 
+    lightSource : () ->
+      v = coffeecam.normalize(@transformation.x(coffeecam.point(1,2000,8000)))
+      $V([v.e(1),v.e(2),v.e(3)])
+
+
     decorateTransformation : (transformation) ->
       return (args...) ->
         matrix = transformation(args...)
         @transformation = matrix.x(@transformation)
         @cameraInScene = this.calculatePositionInScene()
+        @lightsource = this.lightSource()
         this.update()
 
     change_zoom: (z) ->
