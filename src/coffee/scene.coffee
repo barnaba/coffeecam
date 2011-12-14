@@ -39,8 +39,9 @@ namespace "coffeecam", (exports) ->
         getPolygonsForCuboid(startX, startY, startZ + depthMax*i*1.1, do width, do height, do depth))
 
     ret = [].concat row(2, -3200)... , row(2, -800)... , row(2, 800)... , row(2, 3200)...
-    ret.push new Sphere(point(5000,1000,9000), 500, [100, 100, 29, 0.05], [0,255,0])
+    ret.push new Sphere(point(5000,1000,9000), 500, [100, 100, 31, 0.05], [0,255,0])
     ret.push new Sphere(point(-5000,1000,9000), 500, [300, 0.1, 0.3, 0.05], [255,0,0])
+    ret.push new Sphere(point(1,2000,8000), 100, [0, 0, 0, 9], [255,255,0]) # sun :-)
     ret
 
   class Polygon
@@ -122,12 +123,13 @@ namespace "coffeecam", (exports) ->
       @step_x = (@bounding_br.e(1) - @bounding_tl.e(1)) / @x_pixels
       @step_y = (@bounding_br.e(2) - @bounding_tl.e(2)) / @y_pixels
 
-      data = ctx.createImageData(@x_pixels, @y_pixels)
+      data = ctx.getImageData(@hooking_point.e(1), @hooking_point.e(2), @x_pixels, @y_pixels)
       window.once = true
       for y in [1..@y_pixels]
         for x in [1..@x_pixels]
           pixel_colors = this.castRay(x, y, camera)
-          setPixel(data, x, y, pixel_colors..., 256)
+          if pixel_colors
+            setPixel(data, x, y, pixel_colors..., 256)
       ctx.putImageData(data, @hooking_point.e(1), @hooking_point.e(2))
 
     castRay : (x, y, camera) ->
@@ -143,35 +145,30 @@ namespace "coffeecam", (exports) ->
       c = x3*x3 + y3*y3 + z3*z3 - @radius*@radius
       
       delta = b*b - 4 * a * c
+
       if delta >= 0
         s = ( b - Math.sqrt(delta) ) / (2 * a)
         thisPoint= $V([s*x2, -s*y2, -s*z2])
         center = $V([-x3, y3, z3])
         light = camera.lightsource
+
         normal = (thisPoint.subtract center).toUnitVector()
         light_dir = thisPoint.subtract light
-        distance = 300 # Math.pow(light_dir.modulus()*0.001,2)
-        light_dir = light_dir.toUnitVector()
-        lightning = 0
-        lightning += saturate(0, 1, light_dir.dot(normal) * @diffusePower / distance)
+        distance = Math.pow(light_dir.modulus()*0.003,2)
         view_dir = thisPoint.toUnitVector()
         h = light_dir.add(view_dir).toUnitVector()
+        light_dir = light_dir.toUnitVector()
+
+        lightning = 0
+        lightning += saturate(0, 1, light_dir.dot(normal) * @diffusePower / distance)
         lightning += saturate(0,1, Math.pow(h.dot(normal), @specularHardness) * @specularPower / distance)
         lightning += @ambientPower
-        if window.once and @color[1] == 255
-          console.log ("#################")
-          console.log ("point:\t" + debug(thisPoint))
-          console.log ("center:\t" + debug(center))
-          console.log ("source:\t" + debug(light))
-          console.log ("normal:\t" + debug(normal))
-          console.log ("view_dir:\t" + debug(view_dir))
-          console.log ("light_dir:\t" + debug(light_dir))
-          window.once = false
-        colorol = (color) ->
+
+        lightColors= (color) ->
           color * (saturate(0,1,lightning))
-        @color.map(colorol)
+        @color.map(lightColors)
       else
-        return [0,0,0]
+        false
 
 
   setPixel = (imageData, x, y, r, g, b, a) ->
