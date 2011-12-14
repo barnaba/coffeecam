@@ -15,8 +15,7 @@ namespace "coffeecam", (exports) ->
         [0,0,0,1]
       ])
 
-      @light_x = 0
-      @light = coffeecam.point(1,2000,8000)
+      @light = coffeecam.point(1, 2000, 8000)
       @lightsource = this.lightSource()
 
       @h = @canvas.height / 2
@@ -36,15 +35,14 @@ namespace "coffeecam", (exports) ->
       @rotateY = this.decorateTransformation(rotateYTransformation)
       @rotateZ = this.decorateTransformation(rotateZTransformation)
 
-
       this.update()
 
     lightSource : () ->
       v = coffeecam.normalize(@transformation.x(@light))
-      $V([v.e(1)+@light_x,v.e(2),v.e(3)])
+      $V([-v.e(1), v.e(2), v.e(3)])
 
-    moveLight : (x) ->
-      @light_x += x
+    moveLight : (x, y, z) ->
+      @light = @light.add $V([x, y, z, 0])
       @lightsource = this.lightSource()
       this.update()
 

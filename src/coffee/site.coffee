@@ -40,6 +40,10 @@ $(document).ready ->
 
     "1": -> cam.moveLight(1000,0,0)
     "2": -> cam.moveLight(-1000,0,0)
+    "3": -> cam.moveLight(0,1000,0)
+    "4": -> cam.moveLight(0,-1000,0)
+    "5": -> cam.moveLight(0,0,1000)
+    "6": -> cam.moveLight(0,0,-1000)
 
 
 
