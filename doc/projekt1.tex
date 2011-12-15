@@ -219,6 +219,14 @@ P_{cam} =
 \]
 
 i~w~każdej klatce zna swoją pozycję względem początku układu współrzędnych sceny (daną macierzą transformacji \texttt{@transformation}), możemy łatwo obliczyć położenie kamery w~układzie współrzędnych sceny.
+\begin{figure}[h]
+  \centering
+  \subfloat[Krok 1]{\includegraphics[width=0.3\textwidth]{pol1.png}}
+  \subfloat[Krok 2]{\includegraphics[width=0.3\textwidth]{pol2.png}}
+  \subfloat[Krok 3]{\includegraphics[width=0.3\textwidth]{pol3.png}}
+  \caption{Problem z~tą implementacją. Kolejne kroki przedstawiają te same wielokąty, na które patrzymy z~tego samego kierunku.}
+  \label{problemy}
+\end{figure}
 
 Transformacja, której szukamy (transformująca położenie z~układu kamery do układu sceny) jest transformacją odwrotną do \texttt{@transformation}, zatem współrzędne kamery w~układzie współrzędnych możemy policzyć w~następujący sposób:
 $$
@@ -237,6 +245,13 @@ $$ \tt{distance} = \lvert \tt{barycenter} - P_{cam}^\prime \rvert $$
 Dla sfery środek ciężkości znajduje się w~jej środku.
 
 Tak obliczone odległości przypisujemy do wielokątów, które następnie sortujemy wg. tych odległości (malejąco).
+
+Taka implementacja algorytmu usuwania powierzchni zasłoniętych ma swoje problemy.
+Istnieje wiele szczególnych przypadków, w~których środki ciężkości nie będą odpowiadały rzeczywistej kolejności obiektów.
+Jeden z~takich przypadków prezentuje rysunek \ref{problemy} - dwa wielokąty, zmieniają kolejność w~której się zasłaniają, choć nie powinny.
+
+Zdecydowaliśmy się jednak na to rozwiązanie, ponieważ jest łatwe w~implementacji i~dość wydajne.
+Poza tym nasz oryginalny zamysł programu przewidywał tylko prostopadłościany, w~których algorytm oparty o~środki ciężkości sprawuje się dobrze.
 
 \section{Pozostałe informacje o~projekcie}
 Statyczne części projektu (strony, style) są tworzone za pomocą frameworku \href{http://staticmatic.rubyforge.org/}{staticmatic}, na podstawie źródeł (W~językach \href{http://haml-lang.com/}{HAML} i~\href{http://sass-lang.com/}{SASS}).
